@@ -17,9 +17,10 @@ import aiohttp,os,json,time,asyncio
 from datetime import datetime
 from aiohttp import web
 import aiomysql
-from orm import Model, StringField, IntegerField
+from orm import Model, StringField, BooleanField, FloatField, TextField,create_pool
+import uuid
 
-
+from Models import User, Blog, Comment
 
 
 
@@ -40,20 +41,13 @@ def init(loop):
     logging.info('server started at 127.0.0.1')
     return sever
 
-@asyncio.coroutine
-def create_pool(db, password, user, loop, minsize=1, maxsize='10', autocommit=True, charset='utf-8', port='3306',
-                host='localhost', **kw):
-    logging.info('create database connection')
-    global __pool
-    __pool=yield from aiomysql.create_pool(host=host, port=port,
-                                           user=user, password=password, db=db,
-                                           charset=charset, autocommit=autocommit,
-                                           maxsize=maxsize, minsize=minsize, loop=loop)
 
+def test():
+    yield from create_pool(user='root', password='root', database='awesome')
 
+    u = User(name='Test', email='test@example.com', passwd='1234567890', image='about:blank')
 
-
-
+    yield from u.save()
 
 
 
@@ -66,4 +60,5 @@ class Main():
 if __name__ == '__main__':
     loop=asyncio.get_event_loop()
     loop.run_until_complete(init(loop))
+    test()
     loop.run_forever()
